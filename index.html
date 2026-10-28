@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Quién quiere ser millonario?</title>
+<style>
+body{margin:0;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));background:#040922;min-height:100vh}
+#juego{--oro:#f5b700;--oro2:#ffe08a;--borde:#6f88f0;font-family:"Segoe UI",Roboto,Arial,sans-serif;max-width:1000px;margin:auto;color:#fff;border-radius:22px;padding:22px;background:radial-gradient(ellipse at 50% -10%,#3552c9 0%,#0a1642 55%,#040922 100%);box-shadow:0 14px 44px rgba(0,0,0,.5);box-sizing:border-box;overflow:hidden}
+#juego *{box-sizing:border-box}
+#juego .cabecera{text-align:center;margin-bottom:14px}
+#juego .logo{font-size:40px;line-height:1;filter:drop-shadow(0 0 12px rgba(245,183,0,.8))}
+#juego h1{margin:4px 0 0 0;font-size:28px;letter-spacing:1px;text-transform:uppercase;background:linear-gradient(90deg,#ffe08a,#f5b700,#ff9f1a);-webkit-background-clip:text;background-clip:text;color:transparent}
+#juego .sub{opacity:.75;font-size:13px;margin-top:2px}
+#juego h3{margin:0 0 10px 0;color:var(--oro2);font-size:15px;text-transform:uppercase;letter-spacing:.5px}
+#juego .seccion{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:14px;margin-bottom:12px}
+#juego .aviso{display:none;padding:11px 14px;border-radius:12px;margin-bottom:12px;font-weight:700;animation:entrar .3s ease}
+#juego .btn{padding:10px 14px;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:14px;margin:3px 4px 3px 0;color:#fff;transition:transform .12s,filter .12s;font-family:inherit}
+#juego .btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.15)}
+#juego .btn:disabled{opacity:.35;cursor:not-allowed}
+#juego .jugar{display:block;width:100%;padding:16px;font-size:20px;margin:6px 0 0 0;background:linear-gradient(180deg,#ffd54a,#f5a300);color:#1b1300;border-radius:14px;letter-spacing:1px;box-shadow:0 6px 18px rgba(245,163,0,.45)}
+#juego .num{width:52px;height:52px;border-radius:50%;font-size:20px;border:2px solid var(--borde);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;margin:0 8px 8px 0;font-weight:800;font-family:inherit}
+#juego .num.sel,#juego .chip.sel,#juego .tarjeta.sel{border-color:var(--oro);background:rgba(245,183,0,.2);box-shadow:0 0 16px rgba(245,183,0,.5)}
+#juego .chips{display:flex;flex-wrap:wrap;gap:8px}
+#juego .chip{padding:10px 14px;border-radius:30px;border:2px solid var(--borde);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;transition:.15s}
+#juego .tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+#juego .tarjeta{text-align:left;padding:14px;border-radius:16px;border:2px solid var(--borde);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:inherit;transition:.15s}
+#juego .tarjeta .t-titulo{font-size:19px;font-weight:800;margin-bottom:4px}
+#juego .tarjeta .t-linea{font-size:13px;opacity:.9;margin-top:3px}
+#juego .tarjeta .t-premio{font-size:14px;font-weight:800;color:var(--oro2);margin-top:6px}
+#juego input{width:100%;padding:11px 12px;font-size:15px;border-radius:10px;border:2px solid transparent;background:#fff;color:#111;margin:4px 0 6px 0;font-family:inherit}
+#juego input:focus{outline:none;border-color:var(--oro)}
+#juego .fichas{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+#juego .ficha{padding:7px 14px;border-radius:30px;background:rgba(255,255,255,.1);border:2px solid transparent;font-size:13px;font-weight:700}
+#juego .ficha.activa{border-color:var(--oro);background:rgba(245,183,0,.22);box-shadow:0 0 14px rgba(245,183,0,.55)}
+#juego .ficha.fuera{opacity:.5}
+#juego .tablero{display:grid;grid-template-columns:1fr 200px;gap:16px}
+#juego .info{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+#juego .etq{padding:4px 11px;border-radius:20px;background:rgba(255,255,255,.14);font-size:12px;font-weight:700}
+#juego .etq.oro{background:rgba(245,183,0,.25);color:var(--oro2)}
+#juego .pregunta{font-size:20px;line-height:1.4;text-align:center;padding:22px 16px;border-radius:18px;border:2px solid var(--borde);background:linear-gradient(180deg,#1b3496,#0d1c58);box-shadow:inset 0 0 22px rgba(0,0,0,.35),0 4px 14px rgba(0,0,0,.35);margin-bottom:12px;animation:entrar .35s ease}
+#juego .opciones{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#juego .op{display:flex;align-items:center;gap:8px;width:100%;padding:13px 18px;font-size:16px;text-align:left;color:#fff;cursor:pointer;border-radius:40px;border:2px solid var(--borde);background:linear-gradient(180deg,#1b3496,#0d1c58);transition:.15s;font-family:inherit}
+#juego .op:hover:not(:disabled){border-color:var(--oro);box-shadow:0 0 14px rgba(245,183,0,.55)}
+#juego .op .letra{color:var(--oro);font-weight:800}
+#juego .op.ok{background:linear-gradient(180deg,#27c36f,#168a4c);border-color:#8dffbb;animation:pulso 1s ease 2}
+#juego .op.mal{background:linear-gradient(180deg,#e45a5a,#a82525);border-color:#ffb3b3}
+#juego .op.ok .letra,#juego .op.mal .letra{color:#fff}
+#juego .op:disabled{cursor:default}
+#juego .siguiente{display:block;width:100%;margin:12px 0 0 0;padding:14px;font-size:18px;background:linear-gradient(180deg,#27c36f,#168a4c);border-radius:14px;box-shadow:0 6px 16px rgba(39,195,111,.4)}
+#juego .comodines{margin-top:12px}
+#juego .panel{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:12px;margin-top:10px;animation:entrar .3s ease}
+#juego .barra{background:rgba(0,0,0,.35);border-radius:8px;height:18px;margin:2px 0 8px 0;overflow:hidden}
+#juego .relleno{background:linear-gradient(90deg,#ffd54a,#f5a300);height:18px;border-radius:8px;width:0%;transition:width .5s}
+#juego a.enlace{display:inline-block;padding:10px 14px;border-radius:10px;font-weight:700;text-decoration:none;color:#fff;margin:4px 6px 4px 0}
+#juego .escalera{background:rgba(0,0,0,.3);border-radius:16px;padding:8px;align-self:start}
+#juego .paso{padding:4px 10px;font-size:12.5px;border-radius:8px;margin:1px 0;color:#c8d2ff}
+#juego .paso.seguro{color:var(--oro2);font-weight:700}
+#juego .paso.superado{opacity:.5}
+#juego .paso.actual{background:linear-gradient(90deg,#ffd54a,#f5a300);color:#1b1300;font-weight:800}
+#juego .final{text-align:center}
+#juego .final h2{font-size:26px;margin:6px 0;color:var(--oro2)}
+#juego .tabla{max-width:560px;margin:12px auto}
+#juego .fila{padding:12px 14px;margin:6px 0;border-radius:12px;background:rgba(255,255,255,.1);font-size:16px;font-weight:700;text-align:left}
+#juego .fila:first-child{background:linear-gradient(90deg,rgba(245,183,0,.35),rgba(245,183,0,.12));border:1px solid var(--oro)}
+#juego .ranking{margin-top:16px;border-top:1px solid rgba(255,255,255,.18);padding-top:10px;font-size:14px}
+#juego .ranking ol{margin:6px 0;padding-left:22px}
+@keyframes entrar{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pulso{0%,100%{box-shadow:0 0 0 rgba(141,255,187,0)}50%{box-shadow:0 0 24px rgba(141,255,187,.95)}}
+@media (max-width:720px){
+  #juego{padding:14px}
+  #juego h1{font-size:21px}
+  #juego .tablero{grid-template-columns:1fr}
+  #juego .opciones{grid-template-columns:1fr}
+  #juego .pregunta{font-size:17px}
+}
+</style>
+</head>
+<body>
+<div id="juego">
+  <div class="cabecera">
+    <div class="logo">💎</div>
+    <h1>¿Quién quiere ser millonario?</h1>
+    <div class="sub">Trivia de cultura general · 1 a 4 jugadores · público simulado</div>
+  </div>
+  <div id="aviso" class="aviso"></div>
+
+  <div id="inicio">
+    <div class="seccion">
+      <h3>1 · Jugadores</h3>
+      <button id="num1" class="num sel" onclick="elegirJugadores(1)">1</button>
+        <button id="num2" class="num" onclick="elegirJugadores(2)">2</button>
+        <button id="num3" class="num" onclick="elegirJugadores(3)">3</button>
+        <button id="num4" class="num" onclick="elegirJugadores(4)">4</button>
+        
+      <div id="nombres"></div>
+    </div>
+    <div class="seccion">
+      <h3>2 · Categoría <span style="font-size:12px;opacity:.7;text-transform:none">(número de preguntas)</span></h3>
+      <div id="cats" class="chips"></div>
+    </div>
+    <div class="seccion">
+      <h3>3 · Dificultad y premios</h3>
+      <div id="difs" class="tarjetas"></div>
+    </div>
+    <button class="btn jugar" onclick="iniciar()">▶ ¡JUGAR!</button>
+  </div>
+
+  <div id="partida" style="display:none">
+    <div id="fichas" class="fichas"></div>
+    <div class="tablero">
+      <div>
+        <div id="info" class="info"></div>
+        <div id="pregunta" class="pregunta"></div>
+        <div id="opciones" class="opciones">
+          <button id="op0" class="op" onclick="responder(0)"></button>
+          <button id="op1" class="op" onclick="responder(1)"></button>
+          <button id="op2" class="op" onclick="responder(2)"></button>
+          <button id="op3" class="op" onclick="responder(3)"></button>
+          
+        </div>
+
+        <div id="zonaSiguiente" style="display:none">
+          <button id="btnSiguiente" class="btn siguiente" onclick="siguiente()"></button>
+        </div>
+
+        <div class="comodines">
+          <button id="btn5050" class="btn" onclick="cincuenta()" style="background:#1fa35c">50:50</button>
+          <button id="btnPublico" class="btn" onclick="abrirPublico()" style="background:#7d3cff">👥 Público</button>
+          <button id="btnAmigo" class="btn" onclick="abrirAmigo()" style="background:#1f8fd6">📞 Amigo</button>
+          <button id="btnBanco" class="btn" onclick="asegurar()" style="background:#f5b700;color:#1b1300">🔒 Asegurar dinero</button>
+          <button id="btnRetiro" class="btn" onclick="retirarse()" style="background:#d63b3b">🏳️ Retirarse</button>
+        </div>
+
+        <div id="panelPublico" class="panel" style="display:none">
+          <b>👥 Votación del público</b>
+          <div id="zonaQR" style="text-align:center;margin:8px 0">
+            <div style="font-size:14px">Escanea el código QR con el celular y elige una respuesta:</div>
+            <img id="qr" alt="Código QR" style="width:190px;height:190px;background:#fff;padding:6px;border-radius:10px;margin:8px 0">
+            <div id="urlVoto" style="font-size:12px;word-break:break-all"></div>
+          </div>
+          <div id="barras"></div>
+          <div id="totalVotos" style="font-size:13px"></div>
+          <button id="btnCerrar" class="btn" onclick="cerrarVotacion()" style="background:#d63b3b;margin-top:6px">Cerrar votación</button>
+        </div>
+
+        <div id="panelAmigo" class="panel" style="display:none">
+          <b>📞 Llamar a un amigo</b>
+          <div id="amigoForm">
+            <div style="margin-top:8px">1. Nombre de tu amigo</div>
+            <input id="amigoNombre" type="text" maxlength="30" placeholder="Ej: Carlos">
+            <div>2. Su número de celular (opcional: solo para escribirle por WhatsApp)</div>
+            <input id="amigoTelefono" type="tel" maxlength="20" placeholder="Ej: 300 123 4567">
+            <button class="btn" onclick="consultarAmigo()" style="background:#1f8fd6">Consultar</button>
+            <button class="btn" onclick="cancelarAmigo()" style="background:#555">Cancelar</button>
+          </div>
+          <div id="amigoResultado" style="display:none">
+            <p id="amigoTitulo" style="font-weight:700;margin:8px 0 2px 0"></p>
+            <p id="amigoInstruccion" style="margin:2px 0 8px 0"></p>
+            <a id="linkWhatsapp" class="enlace" target="_blank" rel="noopener" style="background:#25a244">💬 Abrir WhatsApp</a>
+            <a id="linkLlamar" class="enlace" target="_blank" rel="noopener" style="background:#1f8fd6">📞 Llamar</a>
+          </div>
+        </div>
+      </div>
+      <div id="escalera" class="escalera"></div>
+    </div>
+  </div>
+
+  <div id="final" class="final" style="display:none">
+    <div style="font-size:46px">🏆</div>
+    <h2 id="final_mensaje"></h2>
+    <p id="final_detalle" style="opacity:.85;margin:0"></p>
+    <div id="tabla" class="tabla"></div>
+    <button class="btn jugar" onclick="nuevaPartida()" style="max-width:360px;margin:10px auto 0 auto">↻ Jugar de nuevo</button>
+  </div>
+
+  <div class="ranking">
+    <b>🏆 Mejores partidas</b> <span id="partidas" style="font-size:12px;opacity:.75"></span>
+    <ol id="ranking"></ol>
+  </div>
+</div>
+
+<script>
+const LETRAS = ["A", "B", "C", "D"];
+const ICONO_ESTADO = {jugando: "🎮", eliminado: "❌", retirado: "🏳️", millonario: "🏆"};
+let sondeo = null;
+let ultimaClave = "";
+let config = null;
+let nJugadores = 1;
+let categoriaSel = "Mixto";
+let dificultadSel = "Normal";
+
+function aviso(texto, esError) {
+  const a = document.getElementById("aviso");
+  a.textContent = texto;
+  a.style.background = esError ? "#d63b3b" : "#1fa35c";
+  a.style.display = texto ? "block" : "none";
+}
+
+function mostrar(id, visible) {
+  document.getElementById(id).style.display = visible ? "block" : "none";
+}
+
+const BANCO = {"Geografía": {"Fácil": [["¿Cuál es la capital de Colombia?", "Bogotá", ["Medellín", "Cali", "Cartagena"]], ["¿Cuál es el idioma oficial de Brasil?", "Portugués", ["Español", "Inglés", "Francés"]], ["¿Cuál es el río más largo de Sudamérica?", "Amazonas", ["Orinoco", "Magdalena", "Paraná"]], ["¿Cuál es la capital de Francia?", "París", ["Londres", "Madrid", "Roma"]], ["¿Cuál es la moneda oficial de Colombia?", "Peso colombiano", ["Dólar", "Bolívar", "Sol"]], ["¿En qué país está la Torre Eiffel?", "Francia", ["Italia", "Alemania", "España"]], ["¿En qué continente está Egipto?", "África", ["Asia", "Europa", "Oceanía"]], ["¿Cuál es el océano más grande del mundo?", "Pacífico", ["Atlántico", "Índico", "Ártico"]], ["¿En qué país se encuentra el Coliseo romano?", "Italia", ["Grecia", "España", "Francia"]], ["¿Cuál es la capital de España?", "Madrid", ["Barcelona", "Sevilla", "Valencia"]], ["¿En qué país se encuentra la Gran Muralla?", "China", ["Japón", "India", "Mongolia"]], ["¿Cuál es el país más grande de Sudamérica?", "Brasil", ["Argentina", "Perú", "Colombia"]]], "Media": [["¿En qué río se encuentra la ciudad de Barranquilla?", "Magdalena", ["Cauca", "Atrato", "Putumayo"]], ["¿Cuál es la capital de Argentina?", "Buenos Aires", ["Montevideo", "Santiago", "Lima"]], ["¿Cuál es el país más grande del mundo por superficie?", "Rusia", ["Canadá", "China", "Estados Unidos"]], ["¿Cuál es la capital de Japón?", "Tokio", ["Kioto", "Osaka", "Seúl"]], ["¿Cuál es el desierto cálido más grande del mundo?", "Sahara", ["Gobi", "Atacama", "Kalahari"]], ["¿Cuál es la capital de Perú?", "Lima", ["Quito", "La Paz", "Bogotá"]], ["¿Cuál es la montaña más alta del mundo sobre el nivel del mar?", "Everest", ["K2", "Kilimanjaro", "Aconcagua"]], ["¿Cuál es la capital de Canadá?", "Ottawa", ["Toronto", "Vancouver", "Montreal"]], ["¿Cuál es la capital de Alemania?", "Berlín", ["Múnich", "Fráncfort", "Hamburgo"]], ["¿Cuál es la capital del departamento de Antioquia?", "Medellín", ["Manizales", "Bucaramanga", "Tunja"]], ["¿Qué ciudad colombiana es conocida como “La Ciudad Amurallada”?", "Cartagena", ["Santa Marta", "Barranquilla", "Popayán"]], ["¿Qué cordillera recorre Sudamérica de norte a sur?", "Los Andes", ["Los Alpes", "El Himalaya", "Las Rocosas"]]], "Difícil": [["¿Cuál es la capital de Australia?", "Canberra", ["Sídney", "Melbourne", "Perth"]], ["¿Cuál es la capital de Turquía?", "Ankara", ["Estambul", "Esmirna", "Bursa"]], ["¿Cuál es el río más largo de Europa?", "Volga", ["Danubio", "Rin", "Sena"]], ["¿Cuál es el país más pequeño del mundo?", "Ciudad del Vaticano", ["Mónaco", "San Marino", "Liechtenstein"]], ["¿Cuál es la capital de Nueva Zelanda?", "Wellington", ["Auckland", "Christchurch", "Queenstown"]], ["¿En qué país se encuentra la antigua ciudad de Petra?", "Jordania", ["Egipto", "Siria", "Israel"]], ["¿Cuál es el país más poblado de África?", "Nigeria", ["Egipto", "Etiopía", "Sudáfrica"]], ["¿Qué país de Sudamérica tiene costas en el Pacífico y en el Caribe?", "Colombia", ["Venezuela", "Perú", "Ecuador"]], ["¿Cuál es el lago navegable más alto del mundo?", "Titicaca", ["Maracaibo", "Nicaragua", "Atitlán"]], ["¿Cuál es la capital de Mongolia?", "Ulán Bator", ["Astaná", "Biskek", "Taskent"]], ["¿Qué estrecho separa a España de África?", "Estrecho de Gibraltar", ["Bósforo", "Estrecho de Magallanes", "Canal de la Mancha"]], ["¿Cuál es la capital de Marruecos?", "Rabat", ["Casablanca", "Marrakech", "Fez"]]]}, "Historia": {"Fácil": [["¿Quién fue el primer presidente de Estados Unidos?", "George Washington", ["Abraham Lincoln", "Thomas Jefferson", "John Adams"]], ["¿En qué año llegó Cristóbal Colón a América?", "1492", ["1453", "1500", "1519"]], ["¿Qué civilización construyó las pirámides de Giza?", "La egipcia", ["La maya", "La romana", "La griega"]], ["¿Qué civilización construyó Machu Picchu?", "Los incas", ["Los mayas", "Los aztecas", "Los romanos"]], ["¿Qué personaje es conocido como “El Libertador”, héroe de la independencia de Colombia?", "Simón Bolívar", ["Francisco de Paula Santander", "Antonio Nariño", "José de San Martín"]], ["¿Qué país regaló la Estatua de la Libertad a Estados Unidos?", "Francia", ["Inglaterra", "España", "Italia"]], ["¿Qué civilización antigua construyó el Coliseo de Roma?", "La romana", ["La griega", "La egipcia", "La persa"]], ["¿Quién fue la primera persona en pisar la Luna?", "Neil Armstrong", ["Buzz Aldrin", "Yuri Gagarin", "Alan Shepard"]], ["¿Qué día se celebra la independencia de Colombia?", "20 de julio", ["7 de agosto", "12 de octubre", "25 de diciembre"]], ["¿Quién fue Cleopatra?", "Una reina de Egipto", ["Una emperatriz romana", "Una diosa griega", "Una reina de Persia"]], ["¿En qué guerra se lanzaron las bombas atómicas sobre Japón?", "Segunda Guerra Mundial", ["Primera Guerra Mundial", "Guerra Fría", "Guerra de Corea"]], ["¿Qué ciudad europea fue dividida por un muro durante la Guerra Fría?", "Berlín", ["París", "Viena", "Varsovia"]]], "Media": [["¿Quién lideró la campaña libertadora de 1819 que terminó en la Batalla de Boyacá?", "Simón Bolívar", ["José de San Martín", "Antonio Nariño", "Francisco de Paula Santander"]], ["¿En qué año fue el Grito de Independencia en Bogotá?", "1810", ["1819", "1821", "1830"]], ["¿En qué año se firmó la Declaración de Independencia de Estados Unidos?", "1776", ["1789", "1783", "1812"]], ["¿En qué año comenzó la Primera Guerra Mundial?", "1914", ["1905", "1918", "1939"]], ["¿Quién fue el líder de la Alemania nazi?", "Adolf Hitler", ["Benito Mussolini", "Francisco Franco", "Joseph Stalin"]], ["¿En qué año terminó la Segunda Guerra Mundial?", "1945", ["1939", "1943", "1950"]], ["Julio César fue un gran general y político de…", "Roma", ["Grecia", "Egipto", "Persia"]], ["¿Qué conquistador español derrotó al Imperio inca?", "Francisco Pizarro", ["Hernán Cortés", "Pedro de Valdivia", "Gonzalo Jiménez de Quesada"]], ["¿Quién fundó Bogotá en 1538?", "Gonzalo Jiménez de Quesada", ["Sebastián de Belalcázar", "Pedro de Heredia", "Rodrigo de Bastidas"]], ["¿Qué hecho histórico comenzó en 1789 en Francia?", "La Revolución francesa", ["La Revolución industrial", "La Revolución rusa", "La Guerra de los Cien Años"]], ["¿Quién fue presidente de Estados Unidos durante la Guerra Civil?", "Abraham Lincoln", ["George Washington", "Theodore Roosevelt", "Ulysses Grant"]], ["¿En qué año cayó el Muro de Berlín?", "1989", ["1985", "1991", "1993"]]], "Difícil": [["¿Qué presidente gobernaba Colombia cuando se expidió la Constitución de 1991?", "César Gaviria", ["Virgilio Barco", "Ernesto Samper", "Andrés Pastrana"]], ["¿Qué filósofo griego fue maestro de Alejandro Magno?", "Aristóteles", ["Platón", "Sócrates", "Pitágoras"]], ["¿Qué pueblo de la antigüedad desarrolló la escritura cuneiforme?", "Los sumerios", ["Los egipcios", "Los fenicios", "Los griegos"]], ["¿En qué año cayó Constantinopla en manos de los otomanos?", "1453", ["1492", "1204", "1517"]], ["¿Qué tratado puso fin a la Primera Guerra Mundial con Alemania?", "Tratado de Versalles", ["Tratado de Tordesillas", "Tratado de Utrecht", "Tratado de París"]], ["¿Qué batalla de 1819 selló la independencia de Colombia?", "Batalla de Boyacá", ["Batalla de Carabobo", "Batalla de Ayacucho", "Batalla de Pichincha"]], ["¿Quién lideró la Revolución rusa de 1917?", "Vladimir Lenin", ["Iósif Stalin", "León Trotski", "Nicolás II"]], ["¿En qué año fue asesinado Jorge Eliécer Gaitán, hecho conocido como el Bogotazo?", "1948", ["1938", "1953", "1958"]], ["¿Quién fue derrotado en la Batalla de Waterloo en 1815?", "Napoleón Bonaparte", ["Julio César", "Aníbal", "Atila"]], ["¿Quién fue el primer europeo en llegar a la India por mar bordeando África?", "Vasco da Gama", ["Fernando de Magallanes", "Bartolomé Díaz", "Américo Vespucio"]], ["¿Qué país gobernó Francisco Franco entre 1939 y 1975?", "España", ["Italia", "Portugal", "Argentina"]], ["¿Qué hecho desencadenó la Primera Guerra Mundial?", "El asesinato del archiduque Francisco Fernando", ["El hundimiento del Lusitania", "La invasión de Polonia", "El ataque a Pearl Harbor"]]]}, "Ciencia": {"Fácil": [["¿Qué planeta es conocido como el planeta rojo?", "Marte", ["Venus", "Júpiter", "Saturno"]], ["¿Qué gas necesitamos respirar para vivir?", "Oxígeno", ["Nitrógeno", "Hidrógeno", "Helio"]], ["¿Cuál es el satélite natural de la Tierra?", "La Luna", ["Fobos", "Titán", "Europa"]], ["¿Cuál es el único mamífero capaz de volar?", "Murciélago", ["Águila", "Colibrí", "Gaviota"]], ["¿Cuántas patas tiene una araña?", "8", ["6", "10", "4"]], ["¿Cómo se llama el agua en estado sólido?", "Hielo", ["Vapor", "Nube", "Rocío"]], ["¿Qué órgano bombea la sangre por el cuerpo?", "Corazón", ["Pulmón", "Hígado", "Riñón"]], ["¿Qué insecto produce la miel?", "Abeja", ["Mariposa", "Hormiga", "Mosca"]], ["¿Cuál es el planeta más cercano al Sol?", "Mercurio", ["Venus", "Tierra", "Marte"]], ["¿Qué hueso protege el cerebro?", "Cráneo", ["Costilla", "Fémur", "Columna"]], ["¿Cuál es el animal más grande del mundo?", "Ballena azul", ["Elefante africano", "Jirafa", "Tiburón blanco"]], ["¿Cuántos colores tiene tradicionalmente el arcoíris?", "7", ["5", "6", "9"]]], "Media": [["¿Qué elemento químico tiene el símbolo “O”?", "Oxígeno", ["Oro", "Osmio", "Ozono"]], ["¿Cuántos huesos tiene aproximadamente un adulto?", "206", ["106", "306", "406"]], ["¿Cuál es el símbolo químico del oro?", "Au", ["Ag", "Or", "Go"]], ["¿Qué metal es líquido a temperatura ambiente?", "Mercurio", ["Plomo", "Hierro", "Cobre"]], ["¿Cómo se llama el proceso por el que las plantas producen su alimento con la luz?", "Fotosíntesis", ["Respiración", "Digestión", "Fermentación"]], ["¿Cuál es el planeta más grande del sistema solar?", "Júpiter", ["Saturno", "Neptuno", "Tierra"]], ["¿Qué vitamina se produce en la piel con la luz del sol?", "Vitamina D", ["Vitamina A", "Vitamina C", "Vitamina B12"]], ["¿Qué orgánulo celular se conoce como la central energética de la célula?", "Mitocondria", ["Núcleo", "Ribosoma", "Lisosoma"]], ["¿Quién formuló la teoría de la relatividad?", "Albert Einstein", ["Isaac Newton", "Galileo Galilei", "Nikola Tesla"]], ["¿Cuál es el tercer planeta desde el Sol?", "Tierra", ["Venus", "Marte", "Mercurio"]], ["¿Cuántos grados mide un ángulo recto?", "90", ["45", "100", "180"]], ["¿Qué gas absorben las plantas del aire para hacer la fotosíntesis?", "Dióxido de carbono", ["Oxígeno", "Nitrógeno", "Hidrógeno"]]], "Difícil": [["¿Cuál es el número atómico del carbono?", "6", ["4", "8", "12"]], ["¿Cuál es el hueso más largo del cuerpo humano?", "Fémur", ["Tibia", "Húmero", "Peroné"]], ["¿Cuál es el elemento más abundante del universo?", "Hidrógeno", ["Helio", "Oxígeno", "Carbono"]], ["¿Cuál es la fórmula química de la sal común?", "NaCl", ["KCl", "NaOH", "CaCO3"]], ["¿Qué científico descubrió la penicilina?", "Alexander Fleming", ["Louis Pasteur", "Marie Curie", "Robert Koch"]], ["¿Cuál es la unidad de fuerza en el Sistema Internacional?", "Newton", ["Joule", "Pascal", "Watt"]], ["¿Cuál es el símbolo químico del sodio?", "Na", ["S", "So", "Sd"]], ["¿Qué gas forma la mayor parte de la atmósfera terrestre?", "Nitrógeno", ["Oxígeno", "Dióxido de carbono", "Argón"]], ["¿Cuántos cromosomas tiene una célula humana normal?", "46", ["23", "44", "48"]], ["¿Cuál es el órgano más grande del cuerpo humano?", "Piel", ["Hígado", "Intestino delgado", "Pulmón"]], ["¿Cuál es la velocidad aproximada de la luz en el vacío?", "300.000 km/s", ["150.000 km/s", "30.000 km/s", "3.000.000 km/s"]], ["¿Cómo se llama la galaxia en la que está la Tierra?", "Vía Láctea", ["Andrómeda", "Triángulo", "Sombrero"]]]}, "Arte y Literatura": {"Fácil": [["¿Qué instrumento tiene teclas blancas y negras?", "Piano", ["Guitarra", "Violín", "Flauta"]], ["¿Quién escribió las novelas de Harry Potter?", "J. K. Rowling", ["Roald Dahl", "J. R. R. Tolkien", "C. S. Lewis"]], ["¿Cuántas cuerdas tiene una guitarra estándar?", "6", ["4", "5", "8"]], ["¿Qué color resulta de mezclar azul y amarillo?", "Verde", ["Morado", "Naranja", "Marrón"]], ["¿Quién pintó la Mona Lisa?", "Leonardo da Vinci", ["Miguel Ángel", "Rafael", "Fernando Botero"]], ["¿Quién escribió “Cien años de soledad”?", "Gabriel García Márquez", ["Mario Vargas Llosa", "Julio Cortázar", "Jorge Isaacs"]], ["¿Qué instrumento de cuerda se toca con arco y se apoya en el hombro?", "Violín", ["Guitarra", "Arpa", "Piano"]], ["¿Qué personaje de cuento perdió un zapato de cristal?", "Cenicienta", ["Blancanieves", "La Bella Durmiente", "Rapunzel"]], ["¿Quién escribió “Romeo y Julieta”?", "William Shakespeare", ["Miguel de Cervantes", "Charles Dickens", "Víctor Hugo"]], ["¿De qué país es originario el flamenco?", "España", ["México", "Portugal", "Argentina"]], ["¿Cuántas notas tiene la escala musical básica (do, re, mi…)?", "7", ["5", "8", "12"]], ["¿Cuáles son los tres colores primarios en la pintura tradicional?", "Rojo, amarillo y azul", ["Verde, naranja y morado", "Blanco, negro y gris", "Rojo, verde y negro"]]], "Media": [["¿Quién creó al personaje Don Quijote de la Mancha?", "Miguel de Cervantes", ["Lope de Vega", "Federico García Lorca", "Gustavo Adolfo Bécquer"]], ["¿Qué pintor creó “La noche estrellada”?", "Vincent van Gogh", ["Claude Monet", "Pablo Picasso", "Salvador Dalí"]], ["¿Qué compositor escribió la Novena Sinfonía con el “Himno a la Alegría”?", "Ludwig van Beethoven", ["Wolfgang Amadeus Mozart", "Johann Sebastian Bach", "Franz Schubert"]], ["¿En qué país nació el tango?", "Argentina", ["Brasil", "México", "Cuba"]], ["¿Quién pintó “Guernica”?", "Pablo Picasso", ["Salvador Dalí", "Joan Miró", "Diego Velázquez"]], ["¿Qué pintor colombiano es famoso por sus figuras voluminosas?", "Fernando Botero", ["Alejandro Obregón", "Débora Arango", "Édgar Negret"]], ["¿Quién pintó “Las Meninas”?", "Diego Velázquez", ["Francisco de Goya", "El Greco", "Bartolomé Murillo"]], ["¿Qué género musical nació en Jamaica?", "Reggae", ["Salsa", "Tango", "Jazz"]], ["¿En qué ciudad nació el jazz?", "Nueva Orleans", ["Chicago", "Nueva York", "Memphis"]], ["¿Qué cantante colombiano interpreta “La camisa negra”?", "Juanes", ["Carlos Vives", "Maluma", "J Balvin"]], ["¿Qué escritor creó a Sherlock Holmes?", "Arthur Conan Doyle", ["Agatha Christie", "Edgar Allan Poe", "Charles Dickens"]], ["¿Qué ritmo es originario de Colombia?", "La cumbia", ["El tango", "El flamenco", "El reggae"]]], "Difícil": [["¿Quién escribió “La Odisea”?", "Homero", ["Virgilio", "Sófocles", "Platón"]], ["¿Quién escribió “El Principito”?", "Antoine de Saint-Exupéry", ["Victor Hugo", "Julio Verne", "Albert Camus"]], ["¿Quién compuso “Las cuatro estaciones”?", "Antonio Vivaldi", ["Johann Sebastian Bach", "Wolfgang Amadeus Mozart", "Frédéric Chopin"]], ["¿Quién pintó el techo de la Capilla Sixtina?", "Miguel Ángel", ["Leonardo da Vinci", "Rafael", "Botticelli"]], ["¿Quién pintó “La persistencia de la memoria”, con relojes derretidos?", "Salvador Dalí", ["Joan Miró", "René Magritte", "Pablo Picasso"]], ["¿Quién escribió “Crimen y castigo”?", "Fiódor Dostoyevski", ["León Tolstói", "Antón Chéjov", "Nikolái Gógol"]], ["¿Qué escritor argentino escribió “Ficciones”?", "Jorge Luis Borges", ["Julio Cortázar", "Ernesto Sabato", "Adolfo Bioy Casares"]], ["¿Quién compuso la ópera “La flauta mágica”?", "Wolfgang Amadeus Mozart", ["Giuseppe Verdi", "Richard Wagner", "Giacomo Puccini"]], ["¿En qué museo se exhibe la Mona Lisa?", "Museo del Louvre", ["Museo del Prado", "Galería Uffizi", "Museo Británico"]], ["¿Quién escribió “La Divina Comedia”?", "Dante Alighieri", ["Petrarca", "Boccaccio", "Virgilio"]], ["¿Qué autor colombiano escribió “La vorágine”?", "José Eustasio Rivera", ["Jorge Isaacs", "Álvaro Mutis", "Eduardo Caballero Calderón"]], ["¿Qué poeta chileno ganó el Premio Nobel de Literatura en 1971?", "Pablo Neruda", ["Gabriela Mistral", "Vicente Huidobro", "Nicanor Parra"]]]}, "Deportes": {"Fácil": [["¿Cuántos jugadores tiene un equipo de fútbol en la cancha?", "11", ["9", "10", "12"]], ["¿En qué deporte se encesta un balón en un aro?", "Baloncesto", ["Rugby", "Voleibol", "Béisbol"]], ["¿En qué deporte se juega el torneo de Roland Garros?", "Tenis", ["Fútbol", "Golf", "Ciclismo"]], ["¿Qué deporte practica el colombiano Egan Bernal?", "Ciclismo", ["Atletismo", "Natación", "Fútbol"]], ["¿Cada cuántos años se celebran los Juegos Olímpicos de verano?", "4", ["2", "3", "5"]], ["¿Con qué parte del cuerpo no se puede tocar el balón en fútbol (salvo el portero)?", "Las manos", ["Los pies", "La cabeza", "El pecho"]], ["¿En qué deporte se utiliza un bate?", "Béisbol", ["Fútbol", "Tenis", "Natación"]], ["¿Qué color de tarjeta expulsa a un jugador en el fútbol?", "Roja", ["Amarilla", "Azul", "Verde"]], ["¿En qué deporte se compite con los estilos crol y mariposa?", "Natación", ["Esgrima", "Ciclismo", "Atletismo"]], ["¿Cuántos jugadores de un equipo de baloncesto están en la cancha?", "5", ["6", "7", "11"]], ["¿Cuántos jugadores de un equipo de voleibol están en la cancha?", "6", ["5", "7", "8"]], ["¿Qué deporte practica Lionel Messi?", "Fútbol", ["Baloncesto", "Béisbol", "Tenis"]]], "Media": [["¿Cuál es el deporte nacional de Colombia?", "Tejo", ["Fútbol", "Ciclismo", "Microfútbol"]], ["¿Qué país organizó el Mundial de fútbol de 2014?", "Brasil", ["Alemania", "Sudáfrica", "Rusia"]], ["¿Qué selección ganó el Mundial de fútbol de 2010?", "España", ["Países Bajos", "Alemania", "Brasil"]], ["¿Qué selección ganó el Mundial de Qatar 2022?", "Argentina", ["Francia", "Croacia", "Brasil"]], ["¿Cuántos minutos dura un partido de fútbol profesional sin contar el descuento?", "90", ["60", "80", "120"]], ["¿En qué país se originaron los antiguos Juegos Olímpicos?", "Grecia", ["Italia", "Egipto", "Turquía"]], ["¿Qué colombiano ganó el Tour de Francia en 2019?", "Egan Bernal", ["Nairo Quintana", "Rigoberto Urán", "Esteban Chaves"]], ["¿Cuántos puntos vale un tiro de tres en baloncesto?", "3", ["2", "4", "5"]], ["¿Cuántos kilómetros mide un maratón?", "42,195", ["21,097", "10", "50"]], ["¿En qué país se juega el torneo de tenis de Wimbledon?", "Reino Unido", ["Estados Unidos", "Francia", "Australia"]], ["¿Cómo se llama el estadio del Real Madrid?", "Santiago Bernabéu", ["Camp Nou", "San Siro", "Maracaná"]], ["¿En qué país se originó el judo?", "Japón", ["China", "Corea del Sur", "Tailandia"]]], "Difícil": [["¿En qué ciudad se celebraron los Juegos Olímpicos de 2016?", "Río de Janeiro", ["Londres", "Pekín", "Tokio"]], ["¿Quién tiene más títulos de Grand Slam en tenis masculino?", "Novak Djokovic", ["Rafael Nadal", "Roger Federer", "Pete Sampras"]], ["¿Cuántos anillos tiene la bandera olímpica?", "5", ["4", "6", "7"]], ["¿Qué atleta tiene el récord mundial de los 100 metros planos (9,58 s)?", "Usain Bolt", ["Yohan Blake", "Asafa Powell", "Tyson Gay"]], ["¿En qué año se jugó el primer Mundial de fútbol?", "1930", ["1924", "1934", "1950"]], ["¿Qué selección ganó el primer Mundial de fútbol?", "Uruguay", ["Argentina", "Brasil", "Italia"]], ["¿Qué selección ha participado en todos los Mundiales de fútbol?", "Brasil", ["Alemania", "Argentina", "Italia"]], ["¿En qué deporte se utilizan los llamados “búnkeres”?", "Golf", ["Béisbol", "Polo", "Tenis"]], ["¿Cuántas piezas tiene cada jugador al empezar una partida de ajedrez?", "16", ["12", "20", "32"]], ["¿Hasta qué ronda llegó Colombia en el Mundial de 2014?", "Cuartos de final", ["Octavos de final", "Semifinales", "Fase de grupos"]], ["¿Qué deporte olímpico combina esquí de fondo y tiro con rifle?", "Biatlón", ["Pentatlón moderno", "Triatlón", "Curling"]], ["¿Qué país ha ganado más medallas de oro en los Juegos Olímpicos de verano?", "Estados Unidos", ["Unión Soviética", "China", "Alemania"]]]}, "Cultura general": {"Fácil": [["¿Cuántos días tiene una semana?", "7", ["5", "6", "8"]], ["¿De qué color se ve el cielo en un día despejado?", "Azul", ["Verde", "Rojo", "Amarillo"]], ["¿Cuántos meses tiene un año?", "12", ["10", "11", "13"]], ["¿Cuántas horas tiene un día?", "24", ["12", "20", "48"]], ["¿Cuál es el resultado de 7 × 8?", "56", ["54", "48", "64"]], ["¿Cuántos lados tiene un triángulo?", "3", ["2", "4", "5"]], ["¿Qué fruta es alargada, amarilla y se pela para comerla?", "Banano", ["Fresa", "Piña", "Uva"]], ["¿Qué producen las vacas y bebemos todos los días?", "Leche", ["Aceite", "Miel", "Vino"]], ["¿Cuántos días tiene febrero en un año normal?", "28", ["29", "30", "31"]], ["¿Cuántos centímetros tiene un metro?", "100", ["10", "1.000", "50"]], ["¿En qué fecha se celebra la Navidad?", "25 de diciembre", ["1 de enero", "31 de octubre", "6 de enero"]], ["¿Cuántos minutos tiene una hora?", "60", ["50", "100", "120"]]], "Media": [["¿Cómo se llama el sistema de lectura y escritura para personas ciegas?", "Braille", ["Morse", "Cuneiforme", "Jeroglífico"]], ["¿Cuál es la lengua con más hablantes nativos del mundo?", "Chino mandarín", ["Inglés", "Español", "Hindi"]], ["¿Qué empresa creó el iPhone?", "Apple", ["Samsung", "Google", "Microsoft"]], ["¿Qué significan las siglas WWW en internet?", "World Wide Web", ["World Web Wide", "Wide World Web", "Web World Wide"]], ["¿Qué plato típico colombiano lleva frijoles, arroz, chicharrón, huevo y arepa?", "Bandeja paisa", ["Ajiaco", "Sancocho", "Lechona"]], ["¿De qué país es originaria la pizza?", "Italia", ["Francia", "Grecia", "Estados Unidos"]], ["¿Cuál es el buscador de internet más usado del mundo?", "Google", ["Bing", "Yahoo", "DuckDuckGo"]], ["¿Cuántas casillas tiene un tablero de ajedrez?", "64", ["36", "49", "81"]], ["¿Cuántos lados tiene un hexágono?", "6", ["5", "7", "8"]], ["¿Cuál es el resultado de 12 × 12?", "144", ["124", "132", "154"]], ["¿Cuánto es el 15 % de 200?", "30", ["20", "25", "35"]], ["¿Cuál es el ingrediente principal del guacamole?", "Aguacate", ["Tomate", "Pepino", "Pimentón"]]], "Difícil": [["¿En qué año recibió García Márquez el Premio Nobel de Literatura?", "1982", ["1967", "1975", "1990"]], ["¿Quién cofundó Microsoft junto a Paul Allen?", "Bill Gates", ["Steve Jobs", "Mark Zuckerberg", "Jeff Bezos"]], ["¿Cuál es la raíz cuadrada de 144?", "12", ["11", "14", "16"]], ["¿Qué significa la sigla CPU?", "Unidad Central de Procesamiento", ["Unidad Central de Programas", "Control Principal de Usuario", "Unidad Computacional Portátil"]], ["¿En qué año se lanzó el primer iPhone?", "2007", ["2005", "2009", "2010"]], ["¿Cuántos dígitos distintos usa el sistema binario?", "2", ["8", "10", "16"]], ["¿Cuántos lados tiene un decágono?", "10", ["8", "9", "12"]], ["¿Qué número representa la letra L en números romanos?", "50", ["5", "100", "500"]], ["¿Qué país inventó el papel?", "China", ["Egipto", "India", "Grecia"]], ["¿Cuál es el resultado de 2 elevado a la 10?", "1.024", ["512", "2.048", "1.000"]], ["¿Quién obtuvo en 1876 la patente del teléfono?", "Alexander Graham Bell", ["Thomas Edison", "Nikola Tesla", "Guglielmo Marconi"]], ["¿Qué significa la sigla ONU?", "Organización de las Naciones Unidas", ["Organización Nacional de Uniones", "Orden Mundial de Naciones", "Observatorio de Naciones Unidas"]]]}};
+const CATEGORIAS = ["Geografía", "Historia", "Ciencia", "Arte y Literatura", "Deportes", "Cultura general"];
+const ICONOS = {"Mixto": "🎲", "Geografía": "🌎", "Historia": "🏛️", "Ciencia": "🔬", "Arte y Literatura": "🎨", "Deportes": "⚽", "Cultura general": "🧠"};
+const PREMIOS_BASE = [100000, 200000, 300000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 125000000, 250000000, 500000000, 1000000000];
+const DIFICULTADES = {"Fácil": {"icono": "🟢", "mezcla": [8, 5, 2], "porcentaje": 10, "descripcion": "Más preguntas sencillas. Premios pequeños."}, "Normal": {"icono": "🟡", "mezcla": [5, 5, 5], "porcentaje": 100, "descripcion": "Equilibrio entre fáciles, medias y difíciles."}, "Difícil": {"icono": "🔴", "mezcla": [2, 5, 8], "porcentaje": 300, "descripcion": "Casi todo es difícil, pero los premios se triplican."}};
+
+// ---- Motor del juego en JavaScript (versión independiente: no necesita Colab ni Python) ----
+// Replica las funciones de Python del cuaderno y devuelve los mismos datos que la página ya sabe dibujar.
+const LETRAS_M = ["A", "B", "C", "D"], NIVELES_M = ["Fácil", "Media", "Difícil"], SEGUROS = [5, 10], MAXJ = 4;
+const pesos = v => "$" + String(Math.trunc(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const correctas = n => n === 1 ? "1 correcta" : n + " correctas";
+const azar = n => Math.floor(Math.random() * n);
+function mezclar(l) { const a = l.slice(); for (let i = a.length - 1; i > 0; i--) { const j = azar(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const calcularPremios = pct => PREMIOS_BASE.map(b => Math.floor(b * pct / 100));
+function nivelDePregunta(n, m) { return n <= m[0] ? "Fácil" : (n <= m[0] + m[1] ? "Media" : "Difícil"); }
+function bancoDe(cat, nivel) {
+  const nombres = cat === "Mixto" ? CATEGORIAS : [cat], r = [];
+  for (const c of nombres) for (const p of BANCO[c][nivel]) r.push([p[0], p[1], p[2], c]);
+  return r;
+}
+const contarPreguntas = cat => NIVELES_M.reduce((t, n) => t + bancoDe(cat, n).length, 0);
+function armarPregunta(p) { const o = mezclar([p[1]].concat(p[2])); return [p[0], o, o.indexOf(p[1]), p[3]]; }
+function premioAlFallar(c, aseg, premios) { const base = c >= 10 ? premios[9] : (c >= 5 ? premios[4] : 0); return aseg > base ? aseg : base; }
+const premioAlRetirarse = (c, premios) => c === 0 ? 0 : premios[c - 1];
+function validarNombre(n) {
+  n = String(n).trim();
+  if (n.length < 2) return [false, "El nombre debe tener al menos 2 caracteres."];
+  if (n.length > 20) return [false, "El nombre no puede tener más de 20 caracteres."];
+  return [true, n];
+}
+function validarJugadores(nombres) {
+  if (!Array.isArray(nombres) || nombres.length < 1 || nombres.length > MAXJ) return [false, "Debe haber entre 1 y " + MAXJ + " jugadores."];
+  const limpios = [];
+  for (const n of nombres) {
+    const [ok, r] = validarNombre(n);
+    if (!ok) return [false, "Jugador " + (limpios.length + 1) + ": " + r];
+    if (limpios.some(x => x.toLowerCase() === r.toLowerCase())) return [false, "Los nombres de los jugadores no pueden repetirse."];
+    limpios.push(r);
+  }
+  return [true, limpios];
+}
+function validarTelefono(t) {
+  let l = String(t).replace(/\D/g, "");
+  if (l.length === 12 && l.startsWith("57")) l = l.slice(2);
+  if (l.length !== 10 || !l.startsWith("3")) return [false, "Escribe un celular colombiano de 10 dígitos que empiece por 3 (ej: 300 123 4567)."];
+  return [true, l];
+}
+function elegirDelBanco(banco, cantidad, usadas, excluir) {
+  const disp = banco.filter(p => !usadas.includes(p[0]) && !excluir.includes(p[0]));
+  if (disp.length >= cantidad) return mezclar(disp).slice(0, cantidad);
+  const elegidas = disp.slice(), textos = banco.map(p => p[0]);
+  for (let i = usadas.length - 1; i >= 0; i--) if (textos.includes(usadas[i])) usadas.splice(i, 1);   // nueva vuelta
+  let otras = banco.filter(p => !elegidas.includes(p) && !excluir.includes(p[0]));
+  const faltan = cantidad - elegidas.length;
+  if (otras.length < faltan) otras = banco.filter(p => !elegidas.includes(p));
+  return elegidas.concat(mezclar(otras).slice(0, faltan));
+}
+function sacarPreguntas(cat, mezcla, excluir) {
+  const usadas = LS.get("millonario_usadas", []), partida = [];
+  for (let k = 0; k < 3; k++)
+    for (const p of elegirDelBanco(bancoDe(cat, NIVELES_M[k]), mezcla[k], usadas, excluir)) { excluir.push(p[0]); partida.push(armarPregunta(p)); }
+  LS.set("millonario_usadas", usadas);
+  return partida;
+}
+function marcarUsada(t) { const u = LS.get("millonario_usadas", []); if (!u.includes(t)) { u.push(t); LS.set("millonario_usadas", u); } }
+function leerRanking() {
+  const f = LS.get("millonario_ranking", []).slice().sort((a, b) => b[2] - a[2]);
+  return { ranking: f.slice(0, 5).map(x => x[0] + " — " + pesos(x[2]) + " (" + correctas(x[1]) + (x[3] ? " · " + x[3] : "") + ")"), partidas: f.length };
+}
+function guardarResultado(nombre, c, premio, dif) { const r = LS.get("millonario_ranking", []); r.push([nombre, c, premio, dif]); LS.set("millonario_ranking", r); }
+
+const estado = { activo: false, categoria: "Mixto", dificultad: "Normal", mezcla: [5, 5, 5], premios: calcularPremios(100),
+                 jugadores: [], turno: 0, revision: null, publico_panel: false };
+const jugadorActual = () => estado.jugadores[estado.turno];
+function escalera(nivel, premios) {
+  const f = [];
+  for (let i = premios.length - 1; i >= 0; i--) f.push({ texto: (i + 1) + ". " + pesos(premios[i]), actual: i === nivel, superado: i < nivel, seguro: SEGUROS.includes(i + 1) });
+  return f;
+}
+function datosPregunta(mensaje) {
+  const j = jugadorActual(), nivel = j.nivel, p = j.preguntas[nivel], rv = estado.revision;
+  let revision = null;
+  if (rv) revision = { elegida: rv.elegida, correcta: rv.correcta, acerto: rv.acerto, boton: (rv.acerto && nivel + 1 < j.preguntas.length) ? "Siguiente pregunta ➜" : "Continuar ➜" };
+  return { jugador: j.nombre, varios: estado.jugadores.length > 1,
+    jugadores: estado.jugadores.map((o, i) => ({ nombre: o.nombre, estado: o.estado, nivel: o.nivel, activo: i === estado.turno })),
+    numero: nivel + 1, total: j.preguntas.length, nivel_pregunta: nivelDePregunta(nivel + 1, estado.mezcla),
+    tema: p[3], icono: ICONOS[p[3]], premio: pesos(estado.premios[nivel]), pregunta: p[0], opciones: p[1],
+    eliminadas: j.eliminadas, revision: revision, cincuenta_disponible: !j.cincuenta_usado, publico_disponible: !j.publico_usado,
+    amigo_disponible: !j.amigo_usado, banco_disponible: !j.banco_usado && nivel > 0, publico_panel: false,
+    asegurado: pesos(j.asegurado), escalera: escalera(nivel, estado.premios), categoria_juego: estado.categoria,
+    dificultad_juego: estado.dificultad, mensaje: mensaje || "" };
+}
+const bloqueo = () => !estado.activo ? "Primero inicia una partida." : (estado.revision ? "Pulsa el botón para continuar." : "");
+function cerrarJugador(j, res, premio) { j.estado = res; j.premio = premio; guardarResultado(j.nombre, j.nivel, premio, estado.dificultad); }
+function terminarPartida(mensaje) {
+  estado.activo = false;
+  const clave = j => [j.premio, j.nivel], medallas = ["🥇", "🥈", "🥉", "4º"];
+  const det = { millonario: "¡Millonario!", retirado: "Se retiró", eliminado: "Eliminado", jugando: "En juego" };
+  const orden = estado.jugadores.slice().sort((a, b) => (b.premio - a.premio) || (b.nivel - a.nivel));
+  let puesto = 1, ant = null; const tabla = [];
+  orden.forEach((j, pos) => {
+    const k = clave(j).join();
+    if (ant !== null && k !== ant) puesto = pos + 1;
+    ant = k;
+    tabla.push({ puesto: medallas[puesto - 1], nombre: j.nombre, premio: pesos(j.premio), correctas: correctas(j.nivel), detalle: det[j.estado] });
+  });
+  let titulo = mensaje;
+  if (tabla.length > 1) {
+    const g = tabla.filter(f => f.puesto === tabla[0].puesto).map(f => f.nombre);
+    titulo = g.length === 1 ? "🏆 ¡Gana " + g[0] + "!" : "🤝 ¡Empate entre " + g.join(" y ") + "!";
+  }
+  const r = leerRanking();
+  return { fin: true, mensaje: titulo, detalle: mensaje, tabla: tabla, ranking: r.ranking, partidas: r.partidas };
+}
+function avanzar(mensaje) {
+  const n = estado.jugadores.length; let sig = -1;
+  for (let p = 1; p <= n; p++) { const i = (estado.turno + p) % n; if (estado.jugadores[i].estado === "jugando") { sig = i; break; } }
+  if (sig === -1) return terminarPartida(mensaje);
+  estado.turno = sig;
+  const j = jugadorActual(); marcarUsada(j.preguntas[j.nivel][0]);
+  if (n > 1) mensaje = mensaje + " Turno de " + j.nombre + ".";
+  return datosPregunta(mensaje.trim());
+}
+const MOTOR = {
+  ver_configuracion() {
+    const r = leerRanking();
+    return { categorias: ["Mixto"].concat(CATEGORIAS).map(n => ({ nombre: n, icono: ICONOS[n], total: contarPreguntas(n) })),
+      dificultades: Object.keys(DIFICULTADES).map(n => { const d = DIFICULTADES[n], p = calcularPremios(d.porcentaje);
+        return { nombre: n, icono: d.icono, descripcion: d.descripcion, mezcla: d.mezcla, premio_maximo: pesos(p[14]), premio_seguro: pesos(p[4]) }; }),
+      max_jugadores: MAXJ, ranking: r.ranking, partidas: r.partidas };
+  },
+  iniciar_juego(nombres, categoria, dificultad) {
+    const [ok, res] = validarJugadores(nombres);
+    if (!ok) return { error: res };
+    if (categoria !== "Mixto" && !CATEGORIAS.includes(categoria)) return { error: "Elige una categoría válida." };
+    if (!DIFICULTADES[dificultad]) return { error: "Elige una dificultad válida." };
+    const cfg = DIFICULTADES[dificultad], ya = [];
+    const jugadores = res.map(n => ({ nombre: n, preguntas: sacarPreguntas(categoria, cfg.mezcla, ya), nivel: 0, eliminadas: [],
+      cincuenta_usado: false, publico_usado: false, amigo_usado: false, banco_usado: false, asegurado: 0, estado: "jugando", premio: 0 }));
+    Object.assign(estado, { activo: true, categoria: categoria, dificultad: dificultad, mezcla: cfg.mezcla, premios: calcularPremios(cfg.porcentaje),
+      jugadores: jugadores, turno: 0, revision: null });
+    marcarUsada(jugadores[0].preguntas[0][0]);
+    return datosPregunta(jugadores.length > 1 ? "Empieza " + jugadores[0].nombre + "." : "");
+  },
+  responder(i) {
+    const b = bloqueo(); if (b) return { error: b };
+    const j = jugadorActual(); i = parseInt(i);
+    if (!(i >= 0 && i <= 3)) return { error: "Elige una opción válida: A, B, C o D." };
+    if (j.eliminadas.includes(i)) return { error: "Esa opción ya fue eliminada por el 50:50." };
+    const p = j.preguntas[j.nivel], acerto = i === p[2];
+    estado.revision = { elegida: i, correcta: p[2], acerto: acerto };
+    return datosPregunta(acerto ? "¡Respuesta correcta!" : "Respuesta incorrecta. La correcta era " + LETRAS_M[p[2]] + ") " + p[1][p[2]] + ".");
+  },
+  siguiente() {
+    if (!estado.activo) return { error: "Primero inicia una partida." };
+    if (!estado.revision) return { error: "Primero responde la pregunta." };
+    const j = jugadorActual(), acerto = estado.revision.acerto; estado.revision = null;
+    if (!acerto) { cerrarJugador(j, "eliminado", premioAlFallar(j.nivel, j.asegurado, estado.premios)); return avanzar("❌ " + j.nombre + " queda eliminado y se lleva " + pesos(j.premio) + "."); }
+    j.nivel++; j.eliminadas = [];
+    if (j.nivel === j.preguntas.length) { cerrarJugador(j, "millonario", estado.premios[14]); return avanzar("🎉 ¡" + j.nombre + " respondió las 15 preguntas y es millonario!"); }
+    return avanzar("¡Correcto!");
+  },
+  usar_cincuenta() {
+    const b = bloqueo(); if (b) return { error: b };
+    const j = jugadorActual(); if (j.cincuenta_usado) return { error: "Ya usaste el comodín 50:50." };
+    const c = j.preguntas[j.nivel][2], dejar = (c + 1 + azar(3)) % 4;
+    j.eliminadas = [0, 1, 2, 3].filter(i => i !== c && i !== dejar); j.cincuenta_usado = true;
+    return datosPregunta("Se eliminaron dos opciones incorrectas.");
+  },
+  usar_publico() {   // público SIMULADO: no hay celulares; se reparten 100 votos según la dificultad
+    const b = bloqueo(); if (b) return { error: b };
+    const j = jugadorActual(); if (j.publico_usado) return { error: "Ya usaste el comodín del público." };
+    const p = j.preguntas[j.nivel], nivel = nivelDePregunta(j.nivel + 1, estado.mezcla);
+    const acierto = { "Fácil": 0.8, "Media": 0.6, "Difícil": 0.4 }[nivel], vivas = [0, 1, 2, 3].filter(i => !j.eliminadas.includes(i));
+    const conteos = [0, 0, 0, 0];
+    for (let v = 0; v < 100; v++) conteos[Math.random() < acierto ? p[2] : vivas[azar(vivas.length)]]++;
+    j.publico_usado = true;
+    estado.ultimos_votos = { conteos: conteos, porcentajes: conteos.map(c => c), total: 100, abierta: false };
+    return { ok: true, url: "Público simulado (100 votos)", qr: "", votos: estado.ultimos_votos };
+  },
+  ver_votos() { return estado.ultimos_votos || { conteos: [0, 0, 0, 0], porcentajes: [0, 0, 0, 0], total: 0, abierta: false }; },
+  cerrar_votacion() { return MOTOR.ver_votos(); },
+  llamar_amigo(nombre, telefono) {
+    const b = bloqueo(); if (b) return { error: b };
+    const j = jugadorActual(); if (j.amigo_usado) return { error: "Ya usaste el comodín del amigo." };
+    const [ok, n] = validarNombre(nombre); if (!ok) return { error: "Nombre del amigo: " + n };
+    let num = "";
+    if (String(telefono).trim() !== "") { const [ok2, t] = validarTelefono(telefono); if (!ok2) return { error: t }; num = t; }
+    const p = j.preguntas[j.nivel];
+    // Amigo SIMULADO: acierta según la dificultad; si hay 50:50 solo elige entre las opciones que quedan
+    const nivelP = nivelDePregunta(j.nivel + 1, estado.mezcla), prob = { "Fácil": 0.85, "Media": 0.65, "Difícil": 0.45 }[nivelP];
+    const vivasA = [0, 1, 2, 3].filter(i => !j.eliminadas.includes(i));
+    const acierta = Math.random() < prob, dice = acierta ? p[2] : vivasA.filter(i => i !== p[2])[azar(vivasA.length - 1)];
+    const seguro = acierta ? (prob >= 0.65 ? "Estoy bastante seguro" : "No estoy muy seguro, pero creo") : "Mmm, no estoy seguro, pero creo";
+    const consejo = "🗣️ " + n + " dice: «" + seguro + " de que es la " + LETRAS_M[dice] + ") " + p[1][dice] + ".»";
+    let msg = "¡Hola " + n + "! Estoy jugando ¿Quién quiere ser millonario? y necesito tu ayuda.\n\n" + p[0] + "\n";
+    for (let i = 0; i < 4; i++) if (!j.eliminadas.includes(i)) msg += LETRAS_M[i] + ") " + p[1][i] + "\n";
+    msg += "\n¿Cuál crees que es? Tienes 30 segundos 🙏";
+    j.amigo_usado = true;
+    return { ok: true, titulo: "📞 Llamaste a " + n + " (amigo simulado)", instruccion: consejo + " Tu amigo puede equivocarse.",
+      whatsapp: num ? "https://wa.me/57" + num + "?text=" + encodeURIComponent(msg) : "", llamada: "" };
+  },
+  asegurar_dinero() {
+    const b = bloqueo(); if (b) return { error: b };
+    const j = jugadorActual();
+    if (j.banco_usado) return { error: "Ya aseguraste tu dinero en esta partida." };
+    if (j.nivel === 0) return { error: "Aún no tienes dinero para asegurar. Responde al menos una pregunta." };
+    j.asegurado = premioAlRetirarse(j.nivel, estado.premios); j.banco_usado = true;
+    return datosPregunta("🔒 Aseguraste " + pesos(j.asegurado) + ". Si fallas, te lo llevas.");
+  },
+  retirarse() {
+    const b = bloqueo(); if (b) return { error: b };
+    const j = jugadorActual(); cerrarJugador(j, "retirado", premioAlRetirarse(j.nivel, estado.premios));
+    return avanzar("🏳️ " + j.nombre + " se retira con " + pesos(j.premio) + ".");
+  }
+};
+async function llamar(nombre, argumentos) {
+  try { return MOTOR[nombre].apply(null, argumentos); }
+  catch (e) { aviso("Error: " + e.message, true); return null; }
+}
+
+function detenerSondeo() {
+  if (sondeo !== null) { clearInterval(sondeo); sondeo = null; }
+}
+
+function pintarRanking(d) {
+  const lista = document.getElementById("ranking");
+  lista.innerHTML = "";
+  for (const texto of d.ranking) {
+    const li = document.createElement("li");
+    li.textContent = texto;
+    lista.appendChild(li);
+  }
+  document.getElementById("partidas").textContent = "(" + d.partidas + " partidas jugadas)";
+}
+
+function agregarDiv(padre, clase, texto) {
+  const div = document.createElement("div");
+  div.className = clase;
+  div.textContent = texto;
+  padre.appendChild(div);
+}
+
+function marcarJugadores() {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById("num" + i).className = "num" + (i === nJugadores ? " sel" : "");
+  }
+}
+
+function reconstruirNombres() {
+  const caja = document.getElementById("nombres");
+  const previos = [];
+  for (const campo of caja.querySelectorAll("input")) { previos.push(campo.value); }
+  caja.innerHTML = "";
+  for (let i = 0; i < nJugadores; i++) {
+    const campo = document.createElement("input");
+    campo.type = "text";
+    campo.maxLength = 20;
+    campo.placeholder = "Nombre del jugador " + (i + 1);
+    campo.value = previos[i] || "";
+    caja.appendChild(campo);
+  }
+}
+
+function elegirJugadores(n) {
+  nJugadores = n;
+  marcarJugadores();
+  reconstruirNombres();
+}
+
+function pintarConfiguracion(c) {
+  config = c;
+  const cats = document.getElementById("cats");
+  cats.innerHTML = "";
+  for (const cat of c.categorias) {
+    const b = document.createElement("button");
+    b.className = "chip" + (cat.nombre === categoriaSel ? " sel" : "");
+    b.textContent = cat.icono + " " + cat.nombre + " · " + cat.total;
+    b.onclick = function () { categoriaSel = cat.nombre; pintarConfiguracion(config); };
+    cats.appendChild(b);
+  }
+  const difs = document.getElementById("difs");
+  difs.innerHTML = "";
+  for (const d of c.dificultades) {
+    const t = document.createElement("button");
+    t.className = "tarjeta" + (d.nombre === dificultadSel ? " sel" : "");
+    agregarDiv(t, "t-titulo", d.icono + " " + d.nombre);
+    agregarDiv(t, "t-linea", d.descripcion);
+    agregarDiv(t, "t-linea", "Preguntas: " + d.mezcla[0] + " fáciles · " + d.mezcla[1] + " medias · " + d.mezcla[2] + " difíciles");
+    agregarDiv(t, "t-premio", "💰 Premio máximo: " + d.premio_maximo);
+    agregarDiv(t, "t-linea", "🔒 Primer premio seguro: " + d.premio_seguro);
+    t.onclick = function () { dificultadSel = d.nombre; pintarConfiguracion(config); };
+    difs.appendChild(t);
+  }
+  marcarJugadores();
+  pintarRanking(c);
+}
+
+async function cargarConfiguracion() {
+  const c = await llamar("ver_configuracion", []);
+  if (c !== null) { pintarConfiguracion(c); }
+}
+
+function pintarVotos(v) {
+  const caja = document.getElementById("barras");
+  caja.innerHTML = "";
+  for (let i = 0; i < 4; i++) {
+    agregarDiv(caja, "", LETRAS[i] + ": " + v.porcentajes[i] + "% (" + v.conteos[i] + " votos)");
+    const barra = document.createElement("div");
+    barra.className = "barra";
+    const relleno = document.createElement("div");
+    relleno.className = "relleno";
+    relleno.style.width = v.porcentajes[i] + "%";
+    barra.appendChild(relleno);
+    caja.appendChild(barra);
+  }
+  document.getElementById("totalVotos").textContent =
+    v.abierta ? "Votos recibidos: " + v.total + " (se actualiza solo)" : "Votación cerrada. Total de votos: " + v.total;
+  if (!v.abierta) {
+    mostrar("zonaQR", false);
+    document.getElementById("btnCerrar").style.display = "none";
+    detenerSondeo();
+  }
+}
+
+function pintarPregunta(d) {
+  mostrar("inicio", false);
+  mostrar("final", false);
+  mostrar("partida", true);
+  const rev = d.revision;
+  const enRevision = rev !== null;
+
+  const fichas = document.getElementById("fichas");
+  fichas.innerHTML = "";
+  for (const j of d.jugadores) {
+    agregarDiv(fichas, "ficha" + (j.activo ? " activa" : "") + (j.estado !== "jugando" ? " fuera" : ""),
+               ICONO_ESTADO[j.estado] + " " + j.nombre + " · " + j.nivel + " ✔");
+  }
+
+  const info = document.getElementById("info");
+  info.innerHTML = "";
+  if (d.varios) { agregarDiv(info, "etq oro", "🎮 Turno de " + d.jugador); }
+  agregarDiv(info, "etq", "Pregunta " + d.numero + "/" + d.total);
+  agregarDiv(info, "etq", d.icono + " " + d.tema);
+  agregarDiv(info, "etq", "Nivel: " + d.nivel_pregunta);
+  agregarDiv(info, "etq oro", "💰 Vale " + d.premio);
+  agregarDiv(info, "etq oro", "🔒 Asegurado: " + d.asegurado);
+
+  document.getElementById("pregunta").textContent = d.pregunta;
+  for (let i = 0; i < 4; i++) {
+    const b = document.getElementById("op" + i);
+    b.textContent = "";
+    const letra = document.createElement("span");
+    letra.className = "letra";
+    letra.textContent = LETRAS[i] + ")";
+    b.appendChild(letra);
+    b.appendChild(document.createTextNode(" " + d.opciones[i]));
+    b.style.visibility = d.eliminadas.includes(i) ? "hidden" : "visible";
+    b.className = "op";
+    b.disabled = enRevision;
+    if (enRevision) {
+      if (i === rev.correcta) { b.className = "op ok"; }
+      else if (i === rev.elegida) { b.className = "op mal"; }
+    }
+  }
+
+  document.getElementById("btn5050").disabled = enRevision || !d.cincuenta_disponible;
+  document.getElementById("btnPublico").disabled = enRevision || !d.publico_disponible;
+  document.getElementById("btnAmigo").disabled = enRevision || !d.amigo_disponible;
+  document.getElementById("btnBanco").disabled = enRevision || !d.banco_disponible;
+  document.getElementById("btnRetiro").disabled = enRevision;
+  mostrar("zonaSiguiente", enRevision);
+  if (enRevision) { document.getElementById("btnSiguiente").textContent = rev.boton; }
+
+  mostrar("panelPublico", d.publico_panel);
+  if (!d.publico_panel) { detenerSondeo(); }
+  const clave = d.jugador + "-" + d.numero;
+  if (enRevision || clave !== ultimaClave) { mostrar("panelAmigo", false); }
+  ultimaClave = clave;
+
+  const esc = document.getElementById("escalera");
+  esc.innerHTML = "";
+  for (const fila of d.escalera) {
+    agregarDiv(esc, "paso" + (fila.actual ? " actual" : "") + (fila.superado ? " superado" : "") + (fila.seguro ? " seguro" : ""),
+               (fila.superado ? "✓ " : "") + fila.texto);
+  }
+  aviso(d.mensaje, enRevision && !rev.acerto);
+}
+
+function pintarFin(d) {
+  detenerSondeo();
+  mostrar("partida", false);
+  mostrar("final", true);
+  document.getElementById("final_mensaje").textContent = d.mensaje;
+  document.getElementById("final_detalle").textContent = d.detalle;
+  const tabla = document.getElementById("tabla");
+  tabla.innerHTML = "";
+  for (const f of d.tabla) {
+    agregarDiv(tabla, "fila", f.puesto + "  " + f.nombre + " — " + f.premio + " · " + f.correctas + " · " + f.detalle);
+  }
+  pintarRanking(d);
+  aviso("", false);
+}
+
+// Cada función de abajo solo envía datos a Python y muestra lo que responde
+async function iniciar() {
+  const nombres = [];
+  for (const campo of document.querySelectorAll("#nombres input")) { nombres.push(campo.value); }
+  const d = await llamar("iniciar_juego", [nombres, categoriaSel, dificultadSel]);
+  if (d === null) return;
+  if (d.error) { aviso(d.error, true); return; }
+  ultimaClave = "";
+  pintarPregunta(d);
+}
+
+async function responder(i) {
+  const d = await llamar("responder", [i]);
+  if (d === null) return;
+  if (d.error) { aviso(d.error, true); return; }
+  pintarPregunta(d);
+}
+
+async function siguiente() {
+  const d = await llamar("siguiente", []);
+  if (d === null) return;
+  if (d.error) { aviso(d.error, true); return; }
+  if (d.fin) { pintarFin(d); } else { pintarPregunta(d); }
+}
+
+async function cincuenta() {
+  const d = await llamar("usar_cincuenta", []);
+  if (d === null) return;
+  if (d.error) { aviso(d.error, true); return; }
+  pintarPregunta(d);
+}
+
+async function abrirPublico() {
+  aviso("Consultando al público…", false);
+  const d = await llamar("usar_publico", []);
+  if (d === null) return;
+  if (d.error) { aviso(d.error, true); return; }
+  document.getElementById("qr").src = d.qr;
+  document.getElementById("urlVoto").textContent = d.url;
+  mostrar("panelPublico", true);
+  mostrar("zonaQR", true);
+  document.getElementById("btnCerrar").style.display = "inline-block";
+  document.getElementById("btnPublico").disabled = true;
+  pintarVotos(d.votos);
+  detenerSondeo();
+  if (d.votos.abierta) {
+    sondeo = setInterval(actualizarVotos, 2000);
+    aviso("Pide al público que escanee el código QR y vote.", false);
+  } else {
+    aviso("Así votó el público (simulado). La respuesta más votada no siempre es la correcta.", false);
+  }
+}
+
+async function actualizarVotos() {
+  const d = await llamar("ver_votos", []);
+  if (d !== null) { pintarVotos(d); }
+}
+
+async function cerrarVotacion() {
+  const d = await llamar("cerrar_votacion", []);
+  if (d !== null) { pintarVotos(d); }
+}
+
+function abrirAmigo() {
+  mostrar("panelAmigo", true);
+  mostrar("amigoForm", true);
+  mostrar("amigoResultado", false);
+}
+
+function cancelarAmigo() {
+  mostrar("panelAmigo", false);
+}
+
+async function consultarAmigo() {
+  const d = await llamar("llamar_amigo", [document.getElementById("amigoNombre").value,
+                                          document.getElementById("amigoTelefono").value]);
+  if (d === null) return;
+  if (d.error) { aviso(d.error, true); return; }
+  document.getElementById("amigoTitulo").textContent = d.titulo;
+  document.getElementById("amigoInstruccion").textContent = d.instruccion;
+  document.getElementById("linkWhatsapp").href = d.whatsapp;
+  document.getElementById("linkWhatsapp").style.display = d.whatsapp ? "inline-block" : "none";   // WhatsApp real, solo si dio su número
+  document.getElementById("linkLlamar").style.display = "none";                                   // la llamada ahora es simulada
+  mostrar("amigoForm", false);
+  mostrar("amigoResultado", true);
+  document.getElementById("btnAmigo").disabled = true;
+  aviso("", false);
+}
+
+async function asegurar() {
+  const d = await llamar("asegurar_dinero", []);
+  if (d === null) return;
+  if (d.error) { aviso(d.error, true); return; }
+  pintarPregunta(d);
+}
+
+async function retirarse() {
+  const d = await llamar("retirarse", []);
+  if (d === null) return;
+  if (d.error) { aviso(d.error, true); return; }
+  if (d.fin) { pintarFin(d); } else { pintarPregunta(d); }
+}
+
+function nuevaPartida() {
+  mostrar("final", false);
+  mostrar("inicio", true);
+  aviso("", false);
+  cargarConfiguracion();
+}
+
+reconstruirNombres();
+cargarConfiguracion();
+</script>
+</body>
+</html>
